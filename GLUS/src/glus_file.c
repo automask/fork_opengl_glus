@@ -19,64 +19,95 @@
 
 GLUSboolean _glusFileCheckRead(FILE* f, size_t actualRead, size_t expectedRead)
 {
-	if (!f)
-	{
-		return GLUS_FALSE;
-	}
+    if (!f)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (actualRead < expectedRead)
-	{
-		glusFileClose(f);
+    if (actualRead < expectedRead)
+    {
+        glusFileClose(f);
 
-		return GLUS_FALSE;
-	}
+        return GLUS_FALSE;
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
 
 GLUSboolean _glusFileCheckWrite(FILE* f, size_t actualWrite, size_t expectedWrite)
 {
-	if (!f)
-	{
-		return GLUS_FALSE;
-	}
+    if (!f)
+    {
+        return GLUS_FALSE;
+    }
 
-	if (actualWrite < expectedWrite)
-	{
-		if (ferror(f))
-		{
-			glusFileClose(f);
+    if (actualWrite < expectedWrite)
+    {
+        if (ferror(f))
+        {
+            glusFileClose(f);
 
-			return GLUS_FALSE;
-		}
-	}
+            return GLUS_FALSE;
+        }
+    }
 
-	return GLUS_TRUE;
+    return GLUS_TRUE;
 }
+
+// FILE* GLUSAPIENTRY glusFileOpen(const char* filename, const char* mode)
+// {
+// 	char buffer[GLUS_MAX_FILENAME];
+
+// 	if (!filename)
+// 	{
+// 		// Note: Automatic errno setting.
+// 		return fopen(filename, mode);
+// 	}
+
+// 	if (strlen(filename) + strlen(GLUS_BASE_DIRECTORY) >= GLUS_MAX_FILENAME)
+// 	{
+// 		// Note: Automatic errno setting.
+// 		return fopen(filename, mode);
+// 	}
+
+// 	strcpy(buffer, GLUS_BASE_DIRECTORY);
+// 	strcat(buffer, filename);
+
+// 	return fopen(buffer, mode);
+// }
 
 FILE* GLUSAPIENTRY glusFileOpen(const char* filename, const char* mode)
 {
-	char buffer[GLUS_MAX_FILENAME];
+    FILE* _file = NULL;
 
-	if (!filename)
-	{
-		// Note: Automatic errno setting.
-		return fopen(filename, mode);
-	}
+    if (!filename)
+    {
+        // Note: Automatic errno setting.
+        _file = fopen(filename, mode);
+    }
+    else if (strlen(filename) + strlen(GLUS_BASE_DIRECTORY) >= GLUS_MAX_FILENAME)
+    {
+        // Note: Automatic errno setting.
+        _file = fopen(filename, mode);
+    }
+    else
+    {
+        char buffer[GLUS_MAX_FILENAME];
 
-	if (strlen(filename) + strlen(GLUS_BASE_DIRECTORY) >= GLUS_MAX_FILENAME)
-	{
-		// Note: Automatic errno setting.
-		return fopen(filename, mode);
-	}
+        strcpy(buffer, GLUS_BASE_DIRECTORY);
+        strcat(buffer, filename);
 
-	strcpy(buffer, GLUS_BASE_DIRECTORY);
-	strcat(buffer, filename);
+        _file = fopen(buffer, mode);
+    }
 
-	return fopen(buffer, mode);
+    if (!_file)
+    {
+        // track error
+        printf("file error => %s \n", filename);
+        // system("pause");
+    }
+
+    return _file;
 }
 
-int GLUSAPIENTRY glusFileClose(FILE* stream)
-{
-	return fclose(stream);
-}
+int GLUSAPIENTRY glusFileClose(FILE* stream) { return fclose(stream); }
